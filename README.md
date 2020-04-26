@@ -115,7 +115,57 @@ class Constants {
 
 Kotlin Keywords
 ---
+### Hard Keywords
++ Have specific meanings everywhere
++ Cannot be used as identifiers
 
+```kotlin
+// declare variables
+val, var
+
+// define various kinds of entities
+class, interfcace, object
+
+// organize codes
+package, fun, return
+
+// create code blocks
+for, while, when, try
+
+// operators
+as, is, in, out
+
+// boolean values
+true, false
+```
+
+> **Variables**: `val` means that the variable is immutable and cannot be changed once set. `var` means it is mutable.
+
+### Soft Keywords
++ Reserved in particular contexts
++ Can otherwise be used as identifiers
+
+```kotlin
+catch, finally
+import, init
+set, setparam
+constructor, dynamic
+```
+
+### Modifier Keywords
++ Modify effect of hard keywords
++ Can otherwise be used as identifiers
+
+```kotlin
+// apply to classes
+enum, data, sealed, open
+
+// apply to objects
+companion
+
+// apply to functions
+constructor, infix
+```
 
 String Templates
 ---
