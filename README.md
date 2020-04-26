@@ -51,3 +51,62 @@ Multiple Kotlin classes
 Each class in a single code file is compiled to its own bytecode file.
 
 <image src="./resource/3.png">
+
+Coding Conventions
+---
+### Naming Packages
++ Package names should be in lower case with no underscores.
++ Use camel-case if necessary for readability.
++ Unlike Java, package and directory names don't have to match. But IntelliJ IDEA likes it when they do match!
+
+```kotlin
+package utilities
+```
+
+### Packages in Mixed Projects
++ Use reverse domain notation.
+
+```kotlin
+package com.example.kotlin
+```
+
+<image src="./resource/4.png">
+
+### Packages in Pure Kotlin Projects
++ Place main code file in source code root directory
++ No package decleration needed in main code file
++ Sub-packages have shallow names
+
+### Naming Classes and Interfaces
++ Class and interface identifiers starts with upper-case character
++ Use cammel-case for readablility
+
+```kotlin
+data class Person
+interface MyInterface {}
+```
+
+### Naming Variables
++ Variable and function identifiers starts with lower-case character
++ Use cammel-case for readablility
+
+```kotlin
+val number = 1
+fun add(a: Int, b: Int): Int {}
+
+val aNumber = 1
+fun addValues(a: Int, b: Int): Int {}
+```
+
+### Naming Constants
++ Constants are declared as member of companion objects
++ Identifiers are upper-case
++ Use underscores fore readability
+
+```kotlin
+class Constants {
+    companion object {
+        const val A_FIXED_VALUE = "a fixed value"
+    }
+}
+```
