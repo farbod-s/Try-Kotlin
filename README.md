@@ -33,3 +33,21 @@ Kotlin Goals
 ### Tool Friendly
 + IntelliJ IDEA includes the kotlin plugin
 + Android Studio inherits Kotlin support
+
+How Java Compiles to Bytecode
+---
+Each Java class in its own file compiles to a `.class` bytecode file.
+
+<image src="./resource/1.png">
+
+How Kotlin Compiles to Bytecode
+---
+Each Kotlin class also compiles to a `.class` bytecode file.
+
+<image src="./resource/2.png">
+
+Multiple Kotlin classes
+---
+Each class in a single code file is compiled to its own bytecode file.
+
+<image src="./resource/3.png">
