@@ -1,3 +1,5 @@
+<image src="./resource/logo.png" width="500">
+
 Kotlin
 ===
 + kotlin is an open source language
@@ -38,19 +40,19 @@ How Java Compiles to Bytecode
 ---
 Each Java class in its own file compiles to a `.class` bytecode file.
 
-<image src="./resource/1.png">
+<image src="./resource/1.png" width="500">
 
 How Kotlin Compiles to Bytecode
 ---
 Each Kotlin class also compiles to a `.class` bytecode file.
 
-<image src="./resource/2.png">
+<image src="./resource/2.png" width="500">
 
 Multiple Kotlin classes
 ---
 Each class in a single code file is compiled to its own bytecode file.
 
-<image src="./resource/3.png">
+<image src="./resource/3.png" width="500">
 
 Coding Conventions
 ---
@@ -70,7 +72,7 @@ package utilities
 package com.example.kotlin
 ```
 
-<image src="./resource/4.png">
+<image src="./resource/4.png" width="250">
 
 ### Packages in Pure Kotlin Projects
 + Place main code file in source code root directory
@@ -109,4 +111,15 @@ class Constants {
         const val A_FIXED_VALUE = "a fixed value"
     }
 }
+```
+
+Kotlin Keywords
+---
+
+
+String Templates
+---
+```kotlin
+println("this is my message ${message}")
+println("this is my message $message")
 ```
