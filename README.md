@@ -139,8 +139,6 @@ as, is, in, out
 true, false
 ```
 
-> **Variables**: `val` means that the variable is immutable and cannot be changed once set. `var` means it is mutable.
-
 ### Soft Keywords
 + Reserved in particular contexts
 + Can otherwise be used as identifiers
@@ -165,6 +163,59 @@ companion
 
 // apply to functions
 constructor, infix
+```
+
+Built-In Types
+---
++ Unlike Java, Kotlin doesn't support primitive types
++ Everything is a class
++ Limited number of built-in types
++ Numeric, characters, booleans, arrays
+
+### Numbers
+| Kotlin (Java)   | Bit width |
+| --------------- |:---------:|
+| Double (double) | 64        |
+| Float (float)   | 32        |
+| Long (long)     | 64        |
+| Int (int)       | 32        |
+| Short (short)   | 16        |
+| Byte (byte)     | 8         |
+
+### Other Built-In Types
+| Kotlin (Java)     | Notes                        |
+| ----------------- |:----------------------------:|
+| Char (char)       | Not treated as a number      |
+| Boolean (boolean) | `true` or `false`            |
+| String (String)   | always immutable             |
+| Array (n/a)       | A Kotlin class named `Array` |
+
+### Declaring a Variable
++ Either the type or the initial value are always required
++ Type can sometimes be inferred from initial value
+
+```kotlin
+val myVariable: Int = 1
+```
+
+> **Variables**: `val` means that the variable is immutable and cannot be changed once set. `var` means it is mutable.
+
+<image src="./resource/5.png" width="500">
+
+### Declaring a Nullable Value
++ Initialization with `null` keyword not always required
+
+```kotlin
+val myVariable: Int? = null
+```
+
+<image src="./resource/6.png" width="500">
+
+### Instantiating a Class
++ Type is inferred from constructor method call
+
+```kotlin
+val myObject = MyClass("parameter")
 ```
 
 String Templates
