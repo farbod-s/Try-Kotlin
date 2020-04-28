@@ -278,3 +278,28 @@ println("comparison result is ${num1.compareTo(num2)}")
 // +1: greater than
 ```
 
+String Values
+---
+```kotlin
+val myString = "hello, world"
+
+val empty = String()
+println("'$empty'")
+
+val charArray = myString.toCharArray()
+println(charArray.toList())
+
+val len = myString.length
+for (i in 0 until len) {
+    println("$myString.get(i)")
+}
+
+val i = myString.indexOf("w")
+val subString = myString.substring(i)
+println(subString)
+
+val myString2 = myString.toUpperCase()
+val match = myString.equals(myString2, true /*ignore case*/)
+println("match=$match)
+```
+
