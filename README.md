@@ -198,9 +198,24 @@ Built-In Types
 val myVariable: Int = 1
 ```
 
-> **Variables**: `val` means that the variable is immutable and cannot be changed once set. `var` means it is mutable.
+> **Variables**
+>
+> `val` means that the variable is immutable and cannot be changed once set. `var` means it is mutable.
 
-<image src="./resource/5.png" width="500">
+```kotlin
+const val myConstant: Int = 1
+```
+
+> **Compile-Time Constants**
+>
+> Properties the value of which is known at compile time can be marked as compile time constants using the const modifier. Such properties need to fulfill the following requirements:
+> * Top-level or member of an object declaration or a companion object.
+> * Initialized with a value of type String or a primitive type
+> * No custom getter
+>
+> Such properties can be used in annotations.
+
+<image src="./resource/5.png" width="250">
 
 ### Declaring a Nullable Value
 + Initialization with `null` keyword not always required
@@ -209,7 +224,7 @@ val myVariable: Int = 1
 val myVariable: Int? = null
 ```
 
-<image src="./resource/6.png" width="500">
+<image src="./resource/6.png" width="250">
 
 ### Instantiating a Class
 + Type is inferred from constructor method call
@@ -224,3 +239,42 @@ String Templates
 println("this is my message ${message}")
 println("this is my message $message")
 ```
+
+Numeric Values
+---
+### Type Casting
+```kotlin
+val myInt = 1
+val myLong: Long = myInt.toLong()
+
+println("the type of myLong is ${myLong::class.simpleName}")
+// output: "the type of myLong is kotlin.Long"
+
+val myLong2 = 1.5
+val myInt2 = myLong2.toInt()
+
+println("the value of myInt2 is $myInt2")
+// output: "the value of myInt2 is 1"
+```
+
+### Comparision
+```kotlin
+val num1 = 1
+val num2 = 2
+
+// using operator (efficient way)
+println("match is ${num1 == num2}")
+// => System.out.println("match is " + false);
+
+// using built-in methods
+println("match is ${num1.equals(num2)}")
+// => System.out.println("match is " + Integer.valueOf(num1).equals(Integer.valueOf(num2)));
+
+// using comparison method
+println("comparison result is ${num1.compareTo(num2)}")
+// output: "comparison result is -1"
+// -1: less than
+//  0: is equal
+// +1: greater than
+```
+
