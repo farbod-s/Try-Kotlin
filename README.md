@@ -376,6 +376,62 @@ fun addValues(vararg numbers: Int): Int {
 val result = addValues(1, 2, 3, 4, 5)
 ```
 
+> **On the JVM**: the named argument syntax cannot be used when calling Java functions because Java bytecode does not always preserve names of function parameters.
+
+### Unit-Returning Functions
+If a function does not return any useful value, its return type is `Unit`. `Unit` is a type with only one value `Unit`. This value does not have to be returned explicitly:
+
+```kotlin
+fun printHello(name: String?): Unit { // the `Unit` return type declaration is also optional
+    if (name != null)
+        println("Hello ${name}")
+    else
+        println("Hi there!")
+    // `return Unit` or `return` is optional
+}
+```
+
+### Single-Expression Functions
+When a function returns a single expression, the curly braces can be omitted and the body is specified after a `=` symbol:
+
+```kotlin
+fun double(x: Int): Int = x * 2
+```
+
+Explicitly declaring the return type is optional when this can be inferred by the compiler.
+
+### Generic functions
+Functions can have generic parameters which are specified using angle brackets before the function name:
+```kotlin
+fun <T> singletonList(item: T): List<T> { /*...*/ }
+```
+
+### Tail Recursive Functions
+Kotlin supports a style of functional programming known as tail recursion. This allows some algorithms that would normally be written using loops to instead be written using a recursive function, but without the risk of stack overflow. When a function is marked with the `tailrec` modifier and meets the required form, the compiler optimises out the recursion, leaving behind a fast and efficient loop based version instead:
+
+```kotlin
+val eps = 1E-10 // "good enough", could be 10^-15
+
+tailrec fun findFixPoint(x: Double = 1.0): Double
+        = if (Math.abs(x - Math.cos(x)) < eps) x else findFixPoint(Math.cos(x))
+```
+
+The resulting code is equivalent to this more traditional style:
+
+```kotlin
+private fun findFixPoint(): Double {
+    var x = 1.0
+    while (true) {
+        val y = Math.cos(x)
+        if (Math.abs(x - y) < eps) return x
+        x = Math.cos(x)
+    }
+}
+```
+
+To be eligible for the `tailrec` modifier, a function must call itself as the last operation it performs. You cannot use tail recursion when there is more code after the recursive call, and you cannot use it within try/catch/finally blocks.
+Currently, tail recursion is supported by Kotlin for JVM and Kotlin/Native.
+
 ### [Is Java **pass-by-reference** or **pass-by-value**?](http://www.javadude.com/articles/passbyvalue.htm)
 The Java Spec says that everything in Java is **pass-by-value**. There is no such thing as **~~pass-by-reference~~** in Java.
 
@@ -432,3 +488,198 @@ fun main(args: Array<String>) {
 
 You can use a reference passed into a function to change the actual object. This will influence the argument you passed in. But the reference itself, i.e. the value of the variable, will never be changed via a function call.
 
+### Top-Level Functions
+Top-level functions are functions inside a Kotlin package that are defined outside of any class, object, or interface. This means that they are functions you call directly, without the need to create any object or call any class.
+
+> Given that Java doesn't support top-level functions, the Kotlin compiler behind the scenes will create a Java class, and the individual top-level functions will be converted to static methods.
+
+Note that we can change the Java class name that the Kotlin compiler generates by using the `@JvmName` annotation.
+
+```kotlin
+@file:JvmName("UserUtils")
+package com.chikekotlin.projectx.utils
+ 
+fun checkUserStatus(): String {
+    return "online"
+}
+```
+
+### Lambda Expressions
+Here are the characteristics of a lambda expression in Kotlin:
++ It must be surrounded by curly braces `{}`.
++ It doesn't have the `fun` keyword. 
+= There is no access modifier (`private`, `public` or `protected`) because it doesn't belong to any class, object, or interface.
++ It has no function name. In other words, it's anonymous. 
++ No return type is specified because it will be inferred by the compiler.
++ Parameters are not surrounded by parentheses `()`.
+
+And, what's more, we can assign a lambda expression to a variable and then execute it.
+
+```kotlin
+val addNumbers = { number1: Int, number2: Int ->
+    val result = number1 + number2
+    println("The result is $result")
+}
+addNumbers(1, 3)
+```
+
+We can pass lambda expressions as parameters to functions: these are called **higher-order functions**, because they are functions of functions. These kinds of functions can accept a lambda or an anonymous function as parameter.
+
+```kotlin
+val stringList: List<String> = listOf("in", "the", "club")
+stringList.last({ s: String -> s.length == 3})
+
+// the Kotlin compiler allows us to remove the function parentheses if the last argument in the function is a lambda expression.
+stringList.last { s: String -> s.length == 3 }
+
+// we can make it more concise by removing the parameter type
+// we don't need to specify the parameter type explicitly, because the parameter type is always the same as the collection element type.
+stringList.last { s -> s.length == 3 }
+```
+
+We can even simplify the lambda expression further again by replacing the lambda expression argument with the auto-generated default argument name `it`.
+
+```kotlin
+stringList.last { it.length == 3 }
+```
+
+The `it` argument name was auto-generated because `last` can accept a lambda expression or an anonymous function (we'll get to that shortly) with only one argument, and its type can be inferred by the compiler.  
+
+#### Local Return in Lambda Expressions
+```kotlin
+fun surroundingFunction() {
+    val intList = listOf(1, 2, 3, 4, 5)
+    intList.forEach {
+        if (it % 2 == 0) {
+            return@forEach
+        }
+    }
+    println("End of surroundingFunction()") // Now, it will execute
+}
+ 
+surroundingFunction() // print "End of surroundingFunction()"
+```
+
+The return statement won't return from the lambda but instead from the containing function `surroundingFunction()`.
+
+To fix this problem, we need to tell it explicitly which function to return from by using a label or name tag.
+
+In the updated code above, we specified the default tag `@forEach` immediately after the `return` keyword inside the lambda. We have now instructed the compiler to return from the lambda instead of the containing function `surroundingFunction()`. Now the last statement of `surroundingFunction()` will execute.
+
+Note that we can also define our own label or name tag:
+```kotlin
+// ...
+intList.forEach myLabel@ {
+    if (it % 2 == 0) {
+        return@myLabel
+// ...
+```
+
+In the code above, we defined our custom label called `myLabel@` and then specified it for the `return` keyword. The `@forEach` label generated by the compiler for the `forEach` function is no longer available because we have defined our own. 
+
+### Member Functions
+This kind of function is defined inside a class, object, or interface. Using member functions helps us to modularize our programs further.
+
+### Anonymous Functions
+An anonymous function is another way to define a block of code that can be passed to a function. It is not bound to any identifier. Here are the characteristics of an anonymous function in Kotlin:
++ has no name
++ is created with the fun keyword
++ contains a function body
+
+```kotlin
+val strLenThree = stringList.last( fun(string): Boolean {
+    return string.length == 3
+})
+print(strLenThree) // will print "the"
+```
+
+In the above code, we have replaced the lambda expression with an anonymous function because we want to be explicit about the return type. 
+
+The return expression returns from the anonymous function and not from the surrounding one:
+```kotlin
+fun surroundingFunction() {
+    val intList = listOf(1, 2, 3, 4, 5)
+    intList.forEach ( fun(number) {
+        if (number % 2 == 0) {
+            return
+        }
+    })
+    println("End of surroundingFunction()") // statement executed
+}
+ 
+surroundingFunction() // will print "End of surroundingFunction()"
+```
+
+### Local or Nested Functions
+A local function is a function that is declared inside another function.
+
+The nested functions can be called only from within the enclosing function and not outside.
+
+We can make our local functions more concise by not explicitly passing parameters to them. This is possible because local functions have access to all parameters and variables of the enclosing function.
+
+```kotlin
+fun printCircumferenceAndArea(radius: Double): Unit {
+    fun calCircumference(): Double = (2 * Math.PI) * radius
+    val circumference = "%.2f".format(calCircumference())
+ 
+    fun calArea(): Double = (Math.PI) * Math.pow(radius, 2.0)
+    val area = "%.2f".format(calArea())
+    // ...
+}
+```
+
+### [Infix Functions](https://code.tutsplus.com/tutorials/kotlin-from-scratch-more-functions--cms-29479)
+The `infix` notation allows us to easily call a one-argument member function or extension function. In addition to a function being one-argument, you must also define the function using the `infix` modifier. To create an infix function, two parameters are involved. The first parameter is the target object, while the second parameter is just a single parameter passed to the function.
+
+> Infix function calls have lower precedence than the arithmetic operators, type casts, and the rangeTo operator.
+> 
+> - 1 shl 2 + 3 is equivalent to 1 shl (2 + 3)
+> - 0 until n * 2 is equivalent to 0 until (n * 2)
+> - xs union ys as Set<*> is equivalent to xs union (ys as Set<*>)
+
+> On the other hand, infix function call's precedence is higher than that of the boolean operators && and ||, is- and in-checks, and some other operators.
+>
+> - a && b xor c is equivalent to a && (b xor c)
+> - a xor b in c is equivalent to (a xor b) in c
+
+#### Creating an Infix Member Function
+```kotlin
+class Student {
+    var kotlinScore = 0.0
+     
+    infix fun addKotlinScore(score: Double): Unit {
+        this.kotlinScore = kotlinScore + score
+    }
+}
+```
+
+#### Calling an Infix Function
++ we don't need to use the dot notation
++ we don't need to wrap the parameter with parentheses
+```kotlin
+val student = Student()
+student addKotlinScore 95.00
+print(student.kotlinScore) // will print "95.0"
+```
+
+#### The `to` Infix Function
+In Kotlin, we can make the creation of a `Pair` instance more succinct by using the `to` infix function instead of the `Pair` constructor. (Behind the scenes, `to` also creates a `Pair` instance.)
+
+Note that the `to` function is also an extension function:
+```kotlin
+public infix fun <A, B> A.to(that: B): Pair<A, B> = Pair(this, that)
+```
+
+compare the creation of a map by using both the `to` infix function and the `Pair` constructor to create the individual pairs:
+
+```kotlin
+val nigeriaCallingCodePair = 234 to "Nigeria"
+val nigeriaCallingCodePair2 = Pair(234, "Nigeria") // same as above
+val nigeriaCallingCodePair3 = 234.to("Nigeria") // same as using 234 to "Nigeria"
+
+val callingCodesMap: Map<Int, String> = mapOf(234 to "Nigeria", 1 to "USA", 233 to "Ghana")
+val callingCodesPairMap: Map<Int, String> = mapOf(Pair(234, "Nigeria"), Pair(1, "USA"), Pair(233, "Ghana"))
+```
+
+Conditions
+---
