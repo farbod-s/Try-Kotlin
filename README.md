@@ -400,7 +400,7 @@ fun double(x: Int): Int = x * 2
 
 Explicitly declaring the return type is optional when this can be inferred by the compiler.
 
-### Generic functions
+### Generic Functions
 Functions can have generic parameters which are specified using angle brackets before the function name:
 ```kotlin
 fun <T> singletonList(item: T): List<T> { /*...*/ }
@@ -680,6 +680,124 @@ val nigeriaCallingCodePair3 = 234.to("Nigeria") // same as using 234 to "Nigeria
 val callingCodesMap: Map<Int, String> = mapOf(234 to "Nigeria", 1 to "USA", 233 to "Ghana")
 val callingCodesPairMap: Map<Int, String> = mapOf(Pair(234, "Nigeria"), Pair(1, "USA"), Pair(233, "Ghana"))
 ```
+
+### Extension Function
+Kotlin provides the ability to extend a class with new functionality without having to inherit from the class or use design patterns such as Decorator. For example, you can write new functions for a class from a third-party library that you can't modify.
+
+To declare an extension function, we need to prefix its name with a receiver type, i.e. the type being extended.
+
+```kotlin
+fun MutableList<Int>.swap(index1: Int, index2: Int) {
+    // the this keyword inside an extension function corresponds to the receiver object (the one that is passed before the dot).
+    val tmp = this[index1] // 'this' corresponds to the list
+    this[index1] = this[index2]
+    this[index2] = tmp
+}
+```
+
+Extension cannot be overloaded. So, it’s impossible to use the override keyword to modify the behavior of an extension that’s already been created.
+
+If a class has a member function, and an extension function is defined which has the same receiver type, the same name, and is applicable to given arguments, the member always wins.
+
+> **Extensions are resolved statically**
+>
+> Extensions do not actually modify classes they extend. By defining an extension, you do not insert new members into a class, but merely make new functions callable with the dot-notation on variables of this type.
+>
+> Extension functions are dispatched statically, i.e. they are not virtual by receiver type. This means that the extension function being called is determined by the type of the expression on which the function is invoked, not by the type of the result of evaluating that expression at runtime.
+
+### Extension Properties
+```kotlin
+val <T> List<T>.lastIndex: Int
+    get() = size - 1
+```
+
+Note that, since extensions do not actually insert members into classes, there's no efficient way for an extension property to have a backing field. This is why **initializers are not allowed for extension properties**. Their behavior can only be defined by explicitly providing getters/setters.
+
+```kotlin
+val House.number = 1 // error: initializers are not allowed for extension properties
+```
+
+### Declaring Extensions as Members
+Inside a class, you can declare extensions for another class. Inside such an extension, there are multiple implicit receivers - objects members of which can be accessed without a qualifier. The instance of the class in which the extension is declared is called **dispatch receiver**, and the instance of the receiver type of the extension method is called **extension receiver**.
+
+```kotlin
+class Host(val hostname: String) {
+    fun printHostname() { print(hostname) }
+}
+
+class Connection(val host: Host, val port: Int) {
+    fun printPort() { print(port) }
+
+    fun Host.printConnectionString() {
+        printHostname() // calls Host.printHostname()
+        print(":")
+        printPort() // calls Connection.printPort()
+    }
+
+    fun connect() {
+        /*...*/
+        host.printConnectionString() // calls the extension function
+    }
+}
+
+fun main() {
+    Connection(Host("kotl.in"), 443).connect()
+    //Host("kotl.in").printConnectionString(443)  // error, the extension function is unavailable outside Connection
+}
+```
+
+In case of a name conflict between the members of the dispatch receiver and the extension receiver, the extension receiver takes precedence. To refer to the member of the dispatch receiver you can use the qualified `this` syntax.
+
+```kotlin
+class Connection {
+    fun Host.getConnectionString() {
+        toString() // calls Host.toString()
+        this@Connection.toString() // calls Connection.toString()
+    }
+}
+```
+
+Extensions declared as members can be declared as `open` and overridden in subclasses. This means that the dispatch of such functions is virtual with regard to the dispatch receiver type, but static with regard to the extension receiver type.
+
+```kotlin
+open class Base { }
+
+class Derived : Base() { }
+
+open class BaseCaller {
+    open fun Base.printFunctionInfo() {
+        println("Base extension function in BaseCaller")
+    }
+
+    open fun Derived.printFunctionInfo() {
+        println("Derived extension function in BaseCaller")
+    }
+
+    fun call(b: Base) {
+        b.printFunctionInfo() // call the extension function
+    }
+}
+
+class DerivedCaller: BaseCaller() {
+    override fun Base.printFunctionInfo() {
+        println("Base extension function in DerivedCaller")
+    }
+
+    override fun Derived.printFunctionInfo() {
+        println("Derived extension function in DerivedCaller")
+    }
+}
+
+fun main() {
+    BaseCaller().call(Base()) // "Base extension function in BaseCaller"
+    DerivedCaller().call(Base()) // "Base extension function in DerivedCaller" - dispatch receiver is resolved virtually
+    DerivedCaller().call(Derived()) // "Base extension function in DerivedCaller" - extension receiver is resolved statically
+}
+```
+
+### Visibility
+- An extension declared on top level of a file has access to the other private top-level declarations in the same file.
+- If an extension is declared outside its receiver type, such an extension cannot access the receiver's private members.
 
 Conditions
 ---
