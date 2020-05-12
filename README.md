@@ -1025,5 +1025,12 @@ do {
 } while (counter < colors.size)
 ```
 
-### Error Handling
+### Companion Object
+```kotlin
+class MathLib {
+    companion object {
+        fun addValues(num1: Int, num2: Int) = num1 + num2
+    }
+}
+```
 
