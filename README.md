@@ -1025,12 +1025,58 @@ do {
 } while (counter < colors.size)
 ```
 
+Classes
+---
+
 ### Companion Object
 ```kotlin
 class MathLib {
     companion object {
         fun addValues(num1: Int, num2: Int) = num1 + num2
     }
+}
+```
+
+### Enum Class
+```kotlin
+enum class Operation(val operator: String) {
+    ADD("+"), SUBTRACT("-"), MULTIPLY("*"), DIVIDE("/")
+}
+```
+
+### Data Class
+```kotlin
+// primary constructor
+data class ClothingItem(val type: String,
+                        val size: String,
+                        val price: Double)
+
+fun main() {
+    val item = ClothingItem("Short", "L", 19.99)
+    println(item) // ClothingItem(type=short, size=L, price=19.99)
+}
+```
+
+### Class Constructors
+```kotlin
+// primary constructor
+data class ClothingItem constructor (var type: String?,
+                        val size: String,
+                        val price: Double) {
+    // executed when primary constructor called
+    init {
+        type = type?.toUpperCase() ?: "UNKNOWN"
+    }
+
+    // secondary constructor: has to daisy chain to primary constructor
+    constructor(size: String, price: Double): this(null, size, price) {
+        // type = "Unknown"
+    }
+}
+
+fun main() {
+    val item = ClothingItem("M", 14.99)
+    println(item) // ClothingItem(type=UNKNOWN, size=M, price=14.99)
 }
 ```
 
