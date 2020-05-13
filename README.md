@@ -1080,3 +1080,146 @@ fun main() {
 }
 ```
 
+### Class Properties
+```kotlin
+data class ClothingItem(private var _type: String?,
+                        val size: String,
+                        private var _price: Double) {
+    var type: String? = _type
+        get() = field ?: "Unknown"
+
+    var price = _price
+        set(value) {
+            field = value * .9
+        }
+}
+
+fun main() {
+    val item = ClothingItem("M", 14.99)
+    println("item type = ${item.type}") // item type = Unknown
+
+    item.price = 10.0
+    println("item price = ${item.price}") // item price = 9.0
+}
+```
+
+### Inheritance
+```kotlin
+open class SuperClass(anInt: Int) {
+    protected val _anInt = anInt
+
+    override fun toString(): String {
+        return "${this::class.simpleName} [anInt: $_anInt]"
+    }
+
+    open fun multiply(factor: Int): Int {
+        return _anInt * factor
+    }
+}
+
+class SubClass(anInt: Int): SuperClass(anInt) {
+    override fun multiple(factor: Int): Int {
+        return super.multiply(factor) * factor
+    }
+}
+```
+ 
+### Interface
+```kotlin
+interface Dog {
+    var fur: String
+    fun speak() {
+        println("Woof!")
+    }
+}
+
+interface Cat {
+    var fur: String
+    fun speak() {
+        println("Meow!")
+    }
+}
+
+class Retriever: Dog, Cat  {
+    override var fur: String
+        get() = "golder"
+        set(value) {}
+
+    override fun speak() {
+        super<Dog>.speak()
+    }
+}
+
+fun makeItTalk(dog: Dog) {
+    dog.speak()
+}
+
+fun reportBreed(name: String, dog: Dog) {
+    println("$name is a ${dog::class.simpleName}")
+}
+
+fun main() {
+    val buster = Retriever()
+    makeItTalk(buster)
+    reportBreed("Buster", buster)
+}
+```
+
+### Callbacks
+```kotlin
+class ClickEvent(x: Int, y: Int)
+
+interface ClickListener {
+    fun onClick(event: ClickEvents)
+}
+
+class StatefulWidget(listener: ClickListener) {
+    private var _listener: ClickListener? = listener
+
+    fun click(x: Int, y: Iny) {
+        listener?.onClick(ClickEvent(x, y))
+    }
+}
+
+fun main() {
+    // using anonymous object
+    val widget = StatefulWidget(object: ClickListener {
+        override fun onClick(event: ClickEvent) {
+            println("clicked at (${event.x}, ${event.y})s")
+        }
+    })
+
+    widget.click(5, 18)
+}
+```
+
+### Sealed Class
+```kotlin
+// abstract class
+sealed class ClothingItem(val type: String) {
+    abstract val size: String
+    abstract val price: Double
+}
+
+// subclasses must be in the same code file
+data class Shirt(override var size: String,
+                 override var price: Double): ClothingItem("Shirt")
+
+data class Pants(override var size: String,
+                 override var price: Double): ClothingItem("Pants")
+
+fun main() {
+    val item1 = Shirt("XL", 19.99)
+    val item2 = Pants("32", 24.99)
+
+    val mostExpensive =
+            if (item1.price > item2.price) item1 else item2
+
+    val instructions = when(mostExpensive) {
+        is Shirt -> "Button it!"
+        is Pants -> "Buckle it!"
+    }
+
+    println(instructions)
+}
+```
