@@ -968,6 +968,13 @@ when (answer) {
     }
 }
 ```
+or
+```kotlin
+when {
+    number < 1 -> print("Number is less than 1")
+    number > 1 -> print("Number is greater than 1")
+}
+```
 
 ### Null Values
 ```kotlin
@@ -1027,8 +1034,11 @@ do {
 
 Classes
 ---
+### Object
+Kotlin has language support for creating singletons with the `object` keyword.
 
 ### Companion Object
+The same as with normal objects, companion objects cannot have constructors, but can extend other classes and implement interfaces.
 ```kotlin
 class MathLib {
     companion object {
@@ -1045,6 +1055,13 @@ enum class Operation(val operator: String) {
 ```
 
 ### Data Class
+To ensure consistency and meaningful behavior of the generated code, data classes have to fulfill the following requirements:
+
+- The primary constructor needs to have at least one parameter;
+- All primary constructor parameters need to be marked as `val` or `var`;
+- Data classes cannot be abstract, open, sealed or inner;
+- (before 1.1) Data classes may only implement interfaces.
+
 ```kotlin
 // primary constructor
 data class ClothingItem(val type: String,
@@ -1223,3 +1240,182 @@ fun main() {
     println(instructions)
 }
 ```
+
+More Kotlin
+---
+
+### Enums
+Enums are **exhaustive** in `when` expressions (`switch` in Java). In Kotlin, we can return on expressions or assign a value to one, forcing each branch of the expression to supply a valid value to fulfill the expression return type.
+
+> In **Java**, `enum` are static singleton objects that cannot have multiple instances.
+
+### Sealed Class
+**Sealed Classes** are a special kind of class such that the Kotlin compiler can verify all subtypes during compilation, adding some unique benefits.
+
+To allow our `enum` to hold state, but have the compiler verify we covered all cases of an instance, we change the declaration to a `sealed class`.
+
+```kotlin
+sealed class Result <out T: Any> {
+    data class Success <out T: Any> (val data: T): Result<T>()
+    data class Error(val exception: Exception): Result<Nothing>()
+    object InProgress: Result<Nothing>()
+}
+
+fun handleResult(result: Result<Int>) {
+    val action = when(result) {
+        is Result.Success -> {}
+        is Result.Error -> {}
+        Result.InProgress -> {}
+    }.exhaustive
+}
+
+val <T>.exhaustive: T
+    get() = this
+```
+
+### Unit
+`Unit` in Kotlin corresponds to the `void` in Java. Like void, Unit is the return type of any function that does not return any meaningful value, and it is optional to mention the Unit as the return type. But unlike void, Unit is a real class (Singleton) with only one instance.
+
+### Nothing
+`Nothing` is a type in Kotlin that represents "a value that never exists", that means just "no value at all".
+
+### `lateinit` vs `lazy`
+`lateinit`:
+- Use it with mutable variable `var`
+```kotlin
+lateinit var name: String       //Allowed
+lateinit val name: String       //Not Allowed
+```
+
+- Allowed with only **non-nullable** data types
+```kotlin
+lateinit var name: String       //Allowed
+lateinit var name: String?      //Not Allowed
+```
+
+- It is a promise to compiler that the value will be initialized in future.
+
+> If you try to access `lateinit` variable without initializing it then it throws `UnInitializedPropertyAccessException`.
+
+`lazy`:
+- Lazy initialization was designed to prevent unnecessary initialization of objects.
+- Your variable will not be initialized unless you use it.
+- It is initialized only once. Next time when you use it, you get the value from cache memory.
+- It is thread safe (It is initializes in the thread where it is used for the first time. Other threads use the same value stored in the cache).
+- The variable can only be `val`.
+- The variable can only be **non-nullable**.
+
+```kotlin
+val aVar by lazy {
+    println("I am computing this value") // prints only once
+    "Hola" // the return value of lambda expression
+}
+
+fun main(args: Array<String>) {
+    println(aVar)
+    println(aVar)
+}
+
+// Result:
+// "I am computing this value"
+// "Hola"
+// "Hola"
+```
+
+### Type Checks and Casts
+#### `is` and `!is` Operators
+We can check whether an object conforms to a given type at runtime by using the `is` operator or its negated form `!is`:
+```kotlin
+if (obj is String) {
+    print(obj.length)
+}
+
+if (obj !is String) { // same as !(obj is String)
+    print("Not a String")
+}
+```
+
+#### Smart Casts
+In many cases, one does not need to use explicit cast operators in Kotlin, because the compiler tracks the `is`-checks and explicit casts for immutable values and inserts (safe) casts automatically when needed.
+
+The compiler is smart enough to know a cast to be safe if a negative check leads to a return.
+
+or in the right-hand side of `&&` and `||`.
+
+```kotlin
+fun demo(x: Any) {
+    if (x is String) {
+        print(x.length) // x is automatically cast to String
+    }
+}
+
+if (x !is String) return
+print(x.length) // x is automatically cast to String
+
+// x is automatically cast to string on the right-hand side of `||`
+if (x !is String || x.length == 0) return
+
+// x is automatically cast to string on the right-hand side of `&&`
+if (x is String && x.length > 0) {
+    print(x.length) // x is automatically cast to String
+}
+
+when (x) {
+    is Int -> print(x + 1)
+    is String -> print(x.length + 1)
+    is IntArray -> print(x.sum())
+}
+```
+
+#### "Unsafe" cast operator
+Usually, the cast operator throws an exception if the cast is not possible. Thus, we call it unsafe. The unsafe cast in Kotlin is done by the infix operator `as`:
+```kotlin
+val x: String = y as String
+```
+
+Note that null cannot be cast to `String` as this type is not nullable, i.e. if `y` is null, the code above throws an exception. To make such code correct for null values, use the nullable type on the right hand side of the cast:
+```kotlin
+val x: String? = y as String?
+```
+
+#### "Safe" (nullable) cast operator
+To avoid an exception being thrown, one can use a safe cast operator `as?` that returns `null` on failure:
+```kotlin
+val x: String? = y as? String
+```
+Note that despite the fact that the right-hand side of `as?` is a non-null type `String` the result of the cast is nullable.
+
+### Coroutines
+Kotlin Coroutines are like lightweight threads. They are lightweight because creating coroutines doesn’t allocate new threads. Instead, they use predefined thread pools, and smart scheduling. Scheduling is the process of determining which piece of work you will execute next.
+
+Additionally, coroutines can be **suspended** and **resumed** mid-execution. This means you can have a long-running task, which you can execute little-by-little. You can pause it any number of times, and resume it when you’re ready again.
+
+### Singleton
+```kotlin
+object SomeSingleton
+```
+The above Kotlin object will be compiled to the following equivalent Java code:
+```kotlin
+public final class SomeSingleton {
+   public static final SomeSingleton INSTANCE;
+
+   private SomeSingleton() {
+      INSTANCE = (SomeSingleton)this;
+      System.out.println("init complete");
+   }
+
+   static {
+      new SomeSingleton();
+   }
+}
+```
+
+This is the preferred way to implement singletons on a JVM because it enables thread-safe lazy initialization without having to rely on a locking algorithm like the complex double-checked locking.
+
+### `suspending` vs. `blocking`
+- A **blocking** call to a function means that a call to any other function, from the same thread, will halt the parent’s execution. Following up, this means that if you make a blocking call on the main thread’s execution, you effectively freeze the UI. Until that blocking calls finishes, the user will see a static screen, which is not a good thing.
+
+- **Suspending** doesn’t necessarily block your parent function’s execution. If you call a suspending function in some thread, you can easily push that function to a different thread. In case it is a heavy operation, it won’t block the main thread. If the suspending function has to suspend, it will simply pause its execution. This way you free up its thread for other work. Once it’s done suspending, it will get the next free thread from the pool, to finish its work.
+
+> Suspending functions can invoke any other regular functions, but to actually suspend the execution, it has to be another suspending function.A suspending function cannot be invoked from a regular function, therefore several so-called coroutine builders are provided, which allow calling a suspending function from a regular non-suspending scope like `launch`, `async`, `runBlocking`.
+
