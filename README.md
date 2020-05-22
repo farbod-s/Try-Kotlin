@@ -1390,6 +1390,67 @@ Kotlin Coroutines are like lightweight threads. They are lightweight because cre
 
 Additionally, coroutines can be **suspended** and **resumed** mid-execution. This means you can have a long-running task, which you can execute little-by-little. You can pause it any number of times, and resume it when you’re ready again.
 
+#### CoroutineScope
+- Keep track of coroutines
+- Ability to cancel ongoing work
+- Notified when a failure happens 
+
+```kotlin
+val scope = CoroutineScope(Job())
+val job = scope.launch {
+    // Coroutine
+}
+```
+
+> Cancelling the scope **cancels its children**.
+>
+> a **cancelled** child doesn't affect other siblings.
+
+#### Job
+- Provides lifecycle
+- Couroutine hierarchy
+
+#### Job Lifecycle
+**States**:
+- New, Active
+- Completing, Completed
+- Cancelling, Cancelled
+
+**Properties**:
+- isActive
+- isCancelled
+- isCompleted
+
+<image src="./resource/7.png" width="500">
+
+#### CoroutineContext
+Defines the behavior of coroutine and consist set of elements with default values:
+- CoroutineDispatcher -> Threading (Dispatchers.Default)
+- Job -> Lifecycle (No parent Job)
+- CoroutineExceptionHandler (None)
+- CoroutineName ("coroutine")
+
+> a **new coroutine** inherits the parent context.
+>
+> Parent context = Defaults + inherited context + arguments
+> 
+> Coroutine context = parent context + Job()
+
+#### Cooperative Cancellation
+`val isActive`:
+- Do an action before finishing the coroutine.
+
+`fun ensureActive()`:
+- Instantaneously stop work.
+
+`suspend fun yield()`:
+- CPU heavy computation that may exhaust thread-pool.
+- Checks if the coroutine Job was completed. If yes, throws `CancellationException`.
+
+> **PRO TIP**: All the suspending functions in `Kotlin.coroutines` are **cancellable**.
+>
+> If you create your own suspend functions, make them cancellable.
+
 ### Singleton
 ```kotlin
 object SomeSingleton
