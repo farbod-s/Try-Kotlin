@@ -1537,3 +1537,34 @@ Flows are cold streams similar to sequences — the code inside a flow builder d
 >
 > **Cold Observables**: are ones that start pushing only when you subscribe, and they start over if you subscribe again.
 
+### Scope Functions
+functions whose sole purpose is to execute a block of code within the context of an object without its name.
+There are five of them: `let`, `run`, `with`, `apply`, and `also`.
+
+There are two main differences between each scope function:
+- The way to refer to the context object
+- The return value.
+
+Each scope function uses one of two ways to access the context object: as a lambda receiver (`this`) or as a lambda argument (`it`).
+
+`run`, `with`, and `apply` refer to the context object as a lambda receiver - by keyword `this`.
+
+```kotlin
+val adam = Person("Adam").apply { 
+    age = 20 // same as this.age = 20 or adam.age = 20
+    city = "London"
+}
+println(adam)
+```
+
+`let` and `also` have the context object as a lambda argument. If the argument name is not specified, the object is accessed by the implicit default name `it`.
+
+```kotlin
+fun getRandomInt(): Int {
+    return Random.nextInt(100).also {
+        writeToLog("getRandomInt() generated value $it")
+    }
+}
+
+val i = getRandomInt()
+```
