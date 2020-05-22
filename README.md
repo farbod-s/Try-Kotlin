@@ -1568,3 +1568,49 @@ fun getRandomInt(): Int {
 
 val i = getRandomInt()
 ```
+
+The scope functions differ by the result they return:
+- `apply` and `also` return the context object.
+- `let`, `run`, and `with` return the lambda result.
+
+```kotlin
+val numberList = mutableListOf<Double>()
+numberList.also { println("Populating the list") }
+    .apply {
+        add(2.71)
+        add(3.14)
+        add(1.0)
+    }
+    .also { println("Sorting the list") }
+    .sort()
+```
+
+```kotlin
+val numbers = mutableListOf("one", "two", "three")
+val countEndsWithE = numbers.run { 
+    add("four")
+    add("five")
+    count { it.endsWith("e") }
+}
+println("There are $countEndsWithE elements that end with e.")
+```
+
+| Function | Object reference | Return value | Is extension function |
+| --- | --- | --- | --- |
+| let | it | Lambda result | Yes |
+| run | this | Lambda result | Yes |
+| run | - | Lambda result | No: called without the context object |
+| with | this | Lambda result | No: takes the context object as an argument. |
+| apply | this | Context object | Yes |
+| also | it | Context object | Yes |
+
+Here is a short guide for choosing scope functions depending on the intended purpose:
+
+- Executing a lambda on non-null objects: `let`
+- Introducing an expression as a variable in local scope: `let`
+- Object configuration: `apply`
+- Object configuration and computing the result: `run`
+- Running statements where an expression is required: non-extension `run`
+- Additional effects: `also`
+- Grouping function calls on an object: `with`
+
