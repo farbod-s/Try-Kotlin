@@ -1478,5 +1478,62 @@ This is the preferred way to implement singletons on a JVM because it enables th
 
 - **Suspending** doesn’t necessarily block your parent function’s execution. If you call a suspending function in some thread, you can easily push that function to a different thread. In case it is a heavy operation, it won’t block the main thread. If the suspending function has to suspend, it will simply pause its execution. This way you free up its thread for other work. Once it’s done suspending, it will get the next free thread from the pool, to finish its work.
 
-> Suspending functions can invoke any other regular functions, but to actually suspend the execution, it has to be another suspending function.A suspending function cannot be invoked from a regular function, therefore several so-called coroutine builders are provided, which allow calling a suspending function from a regular non-suspending scope like `launch`, `async`, `runBlocking`.
+> Suspending functions can invoke any other regular functions, but to actually suspend the execution, it has to be another suspending function. A suspending function cannot be invoked from a regular function, therefore several so-called coroutine builders are provided, which allow calling a suspending function from a regular non-suspending scope like `launch`, `async`, `runBlocking`.
+
+### Flow
+Using the `List<Int>` result type, means we can only return all the values at once. To represent the stream of values that are being asynchronously computed, we can use a `Flow<Int>` type just like we would the `Sequence<Int>` type for synchronously computed values:
+
+```kotlin
+suspend fun foo(): List<Int> {
+    delay(1000) // pretend we are doing something asynchronous here
+    return listOf(1, 2, 3)
+}
+
+fun main() = runBlocking<Unit> {
+    foo().forEach { value -> println(value) } 
+}
+```
+
+```kotlin
+fun foo(): Flow<Int> = flow { // flow builder
+    for (i in 1..3) {
+        delay(100) // pretend we are doing something useful here
+        emit(i) // emit next value
+    }
+}
+
+fun main() = runBlocking<Unit> {
+    // Launch a concurrent coroutine to check if the main thread is blocked
+    launch {
+        for (k in 1..3) {
+            println("I'm not blocked $k")
+            delay(100)
+        }
+    }
+    // Collect the flow
+    foo().collect { value -> println(value) } 
+}
+
+// Result:
+// I'm not blocked 1
+// 1
+// I'm not blocked 2
+// 2
+// I'm not blocked 3
+// 3
+```
+
+- A builder function for `Flow` type is called `flow`.
+- Code inside the `flow { ... }` builder block can suspend.
+- The function `foo()` is no longer marked with `suspend` modifier.
+- Values are emitted from the flow using `emit` function.
+- Values are collected from the flow using `collect` function.
+
+> We can replace `delay` with `Thread.sleep` in the body of foo's `flow { ... }` and see that the main thread is blocked in this case.
+
+Flows are cold streams similar to sequences — the code inside a flow builder does not run until the flow is collected.
+
+> **Hot Observables**: are ones that are pushing event when you are not subscribed to the observable. Like mouse moves, or Timer ticks or anything like that.
+>
+> **Cold Observables**: are ones that start pushing only when you subscribe, and they start over if you subscribe again.
 
