@@ -1614,3 +1614,57 @@ Here is a short guide for choosing scope functions depending on the intended pur
 - Additional effects: `also`
 - Grouping function calls on an object: `with`
 
+Overriding vs Overloading
+---
+Overloading happens at compile-time while Overriding happens at runtime: The binding of overloaded method call to its definition happens at compile-time however binding of overridden method call to its definition happens at runtime.
+
+> **Static binding** in Java occurs during compile time.
+>
+> **Dynamic binding** occurs during runtime.
+
+Static methods can be overloaded which means a class can have more than one static method of same name. Static methods cannot be overridden, even if you declare a same static method in child class it has nothing to do with the same method of parent class as overridden static methods are chosen by the reference class and not by the class of the object.
+
+```java
+public class Animal {
+    public static void testClassMethod() {
+        System.out.println("The static method in Animal");
+    }
+
+    public void testInstanceMethod() {
+        System.out.println("The instance method in Animal");
+    }
+}
+
+public class Cat extends Animal {
+    public static void testClassMethod() {
+        System.out.println("The static method in Cat");
+    }
+
+    public void testInstanceMethod() {
+        System.out.println("The instance method in Cat");
+    }
+
+    public static void main(String[] args) {
+        Cat myCat = new Cat();
+        myCat.testClassMethod();
+        Animal myAnimal = myCat;
+        myAnimal.testClassMethod();
+        myAnimal.testInstanceMethod();
+    }
+}
+
+/*
+Result:
+// testClassMethod() is called from "Cat" reference
+"The static method in Cat"
+
+// testClassMethod() is called from "Animal" reference,
+// ignoring actual object inside it (Cat)
+"The static method in Animal"
+
+// testInstanceMethod() is called from "Animal" reference,
+// but from "Cat" object underneath
+"The instance method in Cat"
+*/
+```
+
