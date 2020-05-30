@@ -1668,3 +1668,40 @@ Result:
 */
 ```
 
+Dictionary
+---
+
+### What are Domain Specific Languages (DSLs)
+A Domain Specific Language is a programming language with a higher level of abstraction optimized for a specific class of problems. A DSL uses the concepts and rules from the field or domain.
+
+### Parameter vs Argument
+**Parameter** is variable defined in function declaration. 
+
+**Argument** is the actual value of this variable that get passed to the function.
+
+**Type parameter** is blueprint or placeholder for a type declared in generic.
+
+**Type argument** is actual type used to parametrize generic.
+
+### Statement vs Expression
+**Expression** in a programming language is a combination of one or more explicit values, constants, variables, operators and functions that the programming language interprets and computes to produce another value.
+An expression is every part of code that returns value.
+
+**Statement** is the smallest standalone element of an imperative programming language that expresses some action to be carried out.
+
+#### What is an expression in Java vs in Kotlin?
+Note, that there are some fundamental differences between what is, and what is not an **expression** in Kotlin and in Java. All Kotlin functions calls are **expressions**, because they return at least `Unit`. Calls of Java functions that do not defined any return type are not **expressions**. Kotlin value assignment (`a = 1`) is **not an expression** in Kotlin, while it is in Java because over there it returns assigned value (in Java you can do `a = b = 2` or `a = 2 * (b = 3)`). All usages of control structures (`if, switch`) in Java are not expressions, while Kotlin allowed `if`, `when` and `try` to return values:
+
+```kotlin
+val bigger = if(a > b) a else b
+val color = when {
+    relax -> GREEN
+    studyTime -> YELLOW
+    else -> BLUE
+}
+val object = try {
+    gson.fromJson(json)
+} catch (e: Throwable) {
+    null
+}
+```
